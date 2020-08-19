@@ -33,4 +33,8 @@ public class MessageUtil {
         return splitMsg(message)[0];
     }
 
+    public static String buildMsg(String... args) {
+        return String.join(":", args);
+    }
+
 }

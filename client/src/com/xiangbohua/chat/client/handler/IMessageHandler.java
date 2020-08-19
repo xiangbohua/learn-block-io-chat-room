@@ -6,5 +6,5 @@ package com.xiangbohua.chat.client.handler;
  */
 public interface IMessageHandler {
     String getHandlerType();
-    String handlerMessage(byte[] message);
+    String handleMessage(byte[] message);
 }

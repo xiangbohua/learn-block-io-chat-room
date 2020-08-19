@@ -1,7 +1,10 @@
 package com.xiangbohua.chat.client.socket;
 
+import com.xiangbohua.chat.client.handler.IMessageHandler;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
@@ -11,7 +14,6 @@ import java.net.Socket;
  */
 public class SocketClient {
     int port;
-    boolean started;
     Socket socket;
 
     public SocketClient(int port) {
@@ -22,14 +24,29 @@ public class SocketClient {
         if (socket == null) {
             socket = new Socket((String) null, port);
         }
-
         socket.connect(new InetSocketAddress("", this.port));
-
-        InputStream inputStream = socket.getInputStream();
-
-        //socket.getChannel()
-
     }
 
+    public String sendData(byte[] sendingData, IMessageHandler handler) throws IOException {
+        if (this.socket == null || !this.socket.isConnected()) {
+            this.connect();
+        }
+
+        OutputStream send = this.socket.getOutputStream();
+        send.write(sendingData);
+        send.flush();
+
+        byte[] receivedData = new byte[2014];
+        InputStream receive = this.socket.getInputStream();
+        int result = receive.read(receivedData);
+        if (result >= 0) {
+            return handler.handleMessage(receivedData);
+        }
+        return "";
+    }
+
+    public void close() throws IOException {
+        this.socket.close();
+    }
 
 }

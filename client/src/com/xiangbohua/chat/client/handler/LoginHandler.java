@@ -14,7 +14,7 @@ public class LoginHandler implements IMessageHandler {
     }
 
     @Override
-    public String handlerMessage(byte[] message) {
+    public String handleMessage(byte[] message) {
         String[] result = MessageUtil.splitMsg(message);
 
         Integer port = 0;
