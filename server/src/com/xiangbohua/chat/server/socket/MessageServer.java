@@ -1,12 +1,15 @@
 package com.xiangbohua.chat.server.socket;
 
-import com.xiangbohua.chat.common.Helper;
+import com.xiangbohua.chat.server.common.Helper;
+import com.xiangbohua.chat.server.handler.HandlerContainer;
+import com.xiangbohua.chat.server.handler.IMessageHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Objects;
 
 /**
  * @author xiangbohua
@@ -37,7 +40,7 @@ public class MessageServer {
     public boolean getStarted() {
         return this.started;
     }
-    public void startServer(MessageHandler handler) throws Exception {
+    public void startServer() throws Exception {
         if (started) {
             return;
         }
@@ -60,23 +63,34 @@ public class MessageServer {
                     byte[] received = new byte[1024];
                     inputStream.read(received);
                     String messageReceived = new String(received);
-                    System.out.println(messageReceived);
-                    String message = handler.onMessage(received);
-                    sendMessage(socket, message);
+                    try {
+                        IMessageHandler handler = HandlerContainer.getHandler(received);
+
+                        if (handler == null) {
+                            sendMessage(socket, "Action not support".getBytes());
+                        } else {
+                            sendMessage(socket, handler.handlerMessage(received));
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        System.out.println("消息读取错误");
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         });
         this.messageThread.start();
     }
 
-    public void sendMessage(Socket socket, String message) throws IOException {
+    public void sendMessage(Socket socket, byte[] messageBytes) throws IOException {
+        if (Objects.isNull(messageBytes)) {
+            return;
+        }
         OutputStream outputStream = socket.getOutputStream();
-        byte[] msgByte = message.getBytes();
 
-        outputStream.write(msgByte);
+        outputStream.write(messageBytes);
+        outputStream.write("\r\n".getBytes());
         outputStream.flush();
     }
 }

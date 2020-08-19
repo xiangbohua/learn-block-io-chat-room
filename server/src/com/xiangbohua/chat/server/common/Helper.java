@@ -1,4 +1,4 @@
-package com.xiangbohua.chat.common;
+package com.xiangbohua.chat.server.common;
 
 import java.io.IOException;
 import java.net.Socket;

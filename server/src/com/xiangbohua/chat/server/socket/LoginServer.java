@@ -1,12 +1,15 @@
 package com.xiangbohua.chat.server.socket;
 
-import com.xiangbohua.chat.common.Helper;
+import com.xiangbohua.chat.common.tool.MessageUtil;
+import com.xiangbohua.chat.server.common.Helper;
+import com.xiangbohua.chat.server.handler.HandlerContainer;
+import com.xiangbohua.chat.server.handler.IMessageHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.*;
-import java.util.Random;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * @author xiangbohua
@@ -25,7 +28,7 @@ public class LoginServer {
         this.port = port;
     }
 
-    public void startServer(LoginHandler handler) throws Exception {
+    public void startServer() throws Exception {
         if (started) {
             return;
         }
@@ -45,8 +48,25 @@ public class LoginServer {
             inputStream.read(received);
             String messageReceived = new String(received);
             System.out.println(messageReceived);
-            int userPort = handler.onLogin(received);
-            this.sendMessage(socket, "" + userPort);
+            String[] msg = MessageUtil.splitMsg(received);
+
+            String errorMessage = null;
+            if (msg.length == 0) {
+                errorMessage = "Message format error";
+            }
+            IMessageHandler handler = HandlerContainer.getHandler(msg[0].trim());
+            if (handler == null) {
+                errorMessage = "Unknown command:" + msg[0];
+            }
+
+            byte[] result = null;
+            if (errorMessage != null) {
+                result = errorMessage.getBytes();
+            } else {
+                result = handler.handlerMessage(received);
+            }
+
+            this.sendMessage(socket, result);
         }
     }
 
@@ -54,12 +74,11 @@ public class LoginServer {
         this.port = newPort;
     }
 
-
-    public void sendMessage(Socket socket, String message) throws IOException {
+    public void sendMessage(Socket socket, byte[] messageByte) throws IOException {
         OutputStream outputStream = socket.getOutputStream();
-        byte[] msgByte = message.getBytes();
 
-        outputStream.write(msgByte);
+        outputStream.write(messageByte);
+        outputStream.write("\r\n".getBytes());
         outputStream.flush();
     }
 

@@ -1,4 +1,4 @@
-package com.xiangbohua.chat.server.socket;
+package com.xiangbohua.chat.server.common;
 
 /**
  * @author xiangbohua
