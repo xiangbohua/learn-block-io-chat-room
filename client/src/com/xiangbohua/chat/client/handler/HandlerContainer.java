@@ -14,12 +14,16 @@ public class HandlerContainer {
 
     public static void warmUp() {
         synchronized (handlers) {
-            String lookupPackage = "com.xiangbohua.chat.server.handler";
+            String lookupPackage = "com.xiangbohua.chat.client.handler";
             List<String> classNames = ClassUtil.getClassName(lookupPackage);
             for (String cName : classNames) {
                 try {
                     cName = cName.replace('/', '.');
-                    cName = cName.substring(cName.indexOf(lookupPackage));
+                    int index = cName.indexOf(lookupPackage);
+                    if (index < 0) {
+                        continue;
+                    }
+                    cName = cName.substring(index);
                     Class c = Class.forName(cName);
                     if (Arrays.stream(c.getInterfaces()).anyMatch(x->"IMessageHandler".equals(x.getSimpleName()))) {
                         IMessageHandler handler = (IMessageHandler)c.newInstance();

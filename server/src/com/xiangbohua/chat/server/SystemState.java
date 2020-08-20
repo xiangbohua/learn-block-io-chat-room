@@ -3,6 +3,7 @@ package com.xiangbohua.chat.server;
 import com.xiangbohua.chat.server.common.UserInfo;
 import com.xiangbohua.chat.server.socket.MessageServer;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,6 +60,17 @@ public class SystemState {
         return null;
     }
 
+    public static void removeUserServer(String userName) {
+        if (userName == null) {
+            return;
+        }
+        userName = userName.trim();
+        MessageServer s = getUserServer(userName);
+
+        if (s != null) {
+            userMessagePorts.remove(userName);
+        }
+    }
 
 
 }

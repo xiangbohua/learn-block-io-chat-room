@@ -14,17 +14,19 @@ import java.net.Socket;
  */
 public class SocketClient {
     int port;
+    String address;
     Socket socket;
 
-    public SocketClient(int port) {
+    public SocketClient(String address, int port) {
         this.port = port;
+        this.address = address;
     }
 
     public void connect() throws IOException {
         if (socket == null) {
-            socket = new Socket((String) null, port);
+            socket = new Socket((String) this.address, port);
         }
-        socket.connect(new InetSocketAddress("", this.port));
+        socket.connect(new InetSocketAddress(address, this.port));
     }
 
     public String sendData(byte[] sendingData, IMessageHandler handler) throws IOException {

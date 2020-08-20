@@ -1,6 +1,7 @@
 package com.xiangbohua.chat.server.socket;
 
 import com.xiangbohua.chat.common.tool.MessageUtil;
+import com.xiangbohua.chat.common.tool.Output;
 import com.xiangbohua.chat.server.common.Helper;
 import com.xiangbohua.chat.server.handler.HandlerContainer;
 import com.xiangbohua.chat.server.handler.IMessageHandler;
@@ -10,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 /**
  * @author xiangbohua
@@ -41,32 +43,52 @@ public class LoginServer {
         }
 
         System.out.println("端口："+this.port);
+
         Socket socket = this.serverSocket.accept();
         InputStream inputStream = socket.getInputStream();
+        boolean hasError = false;
         while (true) {
-            byte[] received = new byte[1024];
-            inputStream.read(received);
-            String messageReceived = new String(received);
-            System.out.println(messageReceived);
-            String[] msg = MessageUtil.splitMsg(received);
-
-            String errorMessage = null;
-            if (msg.length == 0) {
-                errorMessage = "Message format error";
+            if (hasError) {
+                socket = this.serverSocket.accept();
+                inputStream = socket.getInputStream();
+                hasError = false;
             }
-            IMessageHandler handler = HandlerContainer.getHandler(msg[0].trim());
-            if (handler == null) {
-                errorMessage = "Unknown command:" + msg[0];
-            }
+            try {
+                byte[] received = new byte[1024];
+                Output.debug("Login server is listening !");
+                inputStream.read(received);
+                String messageReceived = new String(received);
 
-            byte[] result = null;
-            if (errorMessage != null) {
-                result = errorMessage.getBytes();
-            } else {
-                result = handler.handlerMessage(received);
-            }
+                String[] msg = MessageUtil.splitMsg(received);
 
-            this.sendMessage(socket, result);
+                String errorMessage = null;
+                if (msg.length == 0) {
+                    errorMessage = "Message format error";
+                    this.sendMessage(socket, errorMessage.getBytes());
+                    continue;
+                }
+                IMessageHandler handler = HandlerContainer.getHandler(msg[0].trim());
+                if (handler == null) {
+                    errorMessage = "Unknown command:" + msg[0];
+                    this.sendMessage(socket, errorMessage.getBytes());
+                    continue;
+                }
+                Output.debug("Action found :" + handler.getHandlerType());
+
+                byte[] result = null;
+                if (errorMessage != null) {
+                    result = errorMessage.getBytes();
+                } else {
+                    result = handler.handlerMessage(received);
+                }
+
+                this.sendMessage(socket, result);
+            } catch (SocketException e) {
+                Output.debug("Some user disconnected:" + e.getMessage());
+                hasError = true;
+            } catch (Exception ex) {
+                Output.debug("Known ex" + ex.getMessage());
+            }
         }
     }
 

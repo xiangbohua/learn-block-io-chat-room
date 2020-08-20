@@ -2,6 +2,7 @@ package com.xiangbohua.chat.server.handler;
 
 
 import com.xiangbohua.chat.common.tool.ClassUtil;
+import com.xiangbohua.chat.common.tool.Output;
 
 import java.util.*;
 
@@ -20,11 +21,16 @@ public class HandlerContainer {
             for (String cName : classNames) {
                 try {
                     cName = cName.replace('/', '.');
-                    cName = cName.substring(cName.indexOf(lookupPackage));
+                    int index = cName.indexOf(lookupPackage);
+                    if (index < 0) {
+                        continue;
+                    }
+                    cName = cName.substring(index);
                     Class c = Class.forName(cName);
                     if (Arrays.stream(c.getInterfaces()).anyMatch(x->"IMessageHandler".equals(x.getSimpleName()))) {
                         IMessageHandler handler = (IMessageHandler)c.newInstance();
                         addHandler(handler.getHandlerType(), handler);
+                        Output.debug("Handler found:" + handler.getHandlerType());
                     }
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();

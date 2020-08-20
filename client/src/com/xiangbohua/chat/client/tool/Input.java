@@ -1,6 +1,7 @@
 package com.xiangbohua.chat.client.tool;
 
 import com.xiangbohua.chat.client.inp.InputHandler;
+import com.xiangbohua.chat.common.tool.Output;
 
 import java.util.NoSuchElementException;
 import java.util.Scanner;
@@ -40,9 +41,11 @@ public class Input {
                     break;
                 }
             } catch (NoSuchElementException ex) {
+            } catch (Exception ex) {
+                Output.debug(ex.getMessage());
             }
         }
-        Output.showMessage("Bye Bye");
+        Output.debug("Bye Bye");
     }
 
 }

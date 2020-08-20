@@ -1,4 +1,4 @@
-package com.xiangbohua.chat.client.tool;
+package com.xiangbohua.chat.common.tool;
 
 /**
  * @author xiangbohua
@@ -18,5 +18,9 @@ public class Output {
             paddingBland.append(" ");
         }
         System.out.println(paddingBland.append(message));
+    }
+
+    public static void debug(String message) {
+        System.out.println(message);
     }
 }
