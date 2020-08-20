@@ -10,5 +10,5 @@ import com.xiangbohua.chat.server.common.MessageType;
 public interface IMessageSender {
     MessageType supportType();
 
-    String sendMessage(String toUser, ChatMessage message);
+    byte[] sendMessage(String toUser, ChatMessage message);
 }

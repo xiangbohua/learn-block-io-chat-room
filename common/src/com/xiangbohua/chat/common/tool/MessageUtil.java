@@ -22,7 +22,7 @@ public class MessageUtil {
         if (message == null || message.length == 0) {
             return null;
         }
-        return message[0];
+        return message[0].trim();
     }
 
     public static String getAction(byte[] msBytes) {

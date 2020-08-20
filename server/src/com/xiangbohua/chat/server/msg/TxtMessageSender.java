@@ -15,7 +15,7 @@ public class TxtMessageSender implements IMessageSender {
     }
 
     @Override
-    public String sendMessage(String toUser, ChatMessage message) {
+    public byte[] sendMessage(String toUser, ChatMessage message) {
         return null;
     }
 }

@@ -69,6 +69,7 @@ public class MessageServer {
         outputStream.write(messageBytes);
         outputStream.write("\r\n".getBytes());
         outputStream.flush();
+        Output.debug(new String(messageBytes));
     }
 
     boolean isClosing = false;
@@ -84,13 +85,13 @@ public class MessageServer {
 
         @Override
         public void run() {
-            Output.debug("Message server is listening：" + port);
             try {
                 this.socket = serverSocket.accept();
                 InputStream inputStream = socket.getInputStream();
                 started = true;
                 boolean getError = false;
                 while (!Thread.currentThread().isInterrupted()) {
+                    Output.debug("Message server is listening：" + port);
                     byte[] received = new byte[1024];
                     inputStream.read(received);
                     String messageReceived = new String(received);

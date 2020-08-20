@@ -37,8 +37,6 @@ public class Friend {
             }
         }
 
-
-
     }
 
     private static String getFilePath(String userName) {
